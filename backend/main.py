@@ -7,6 +7,7 @@ import pandas as pd
 import re
 import io
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import CountVectorizer
 
 app = FastAPI(title="AI Resume Screener API")
 
@@ -20,6 +21,7 @@ app.add_middleware(
 # No Transcript Models
 model_no_trans = joblib.load(r"P:\AI-Resume-Screener\models\ensemble_model.pkl")
 scaler_no_trans = joblib.load(r"P:\AI-Resume-Screener\models\scaler.pkl")
+vectorizer_no_trans = joblib.load(r"P:\AI-Resume-Screener\models\tfidf_vectorizer.pkl")
 
 # Transcript Models
 model_trans = joblib.load(r"P:\AI-Resume-Screener\models\ensemble_model_transcript.pkl")
@@ -33,13 +35,16 @@ def extract_text_from_pdf(file_bytes):
         text += page.extract_text() + " "
     return text
 
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+stop_words = set(ENGLISH_STOP_WORDS)
+
 def clean_text(text):
     text = re.sub('http\\S+\\s*', ' ', text)
     text = re.sub('RT|cc', ' ', text)
     text = re.sub('#\\S+', '', text)
     text = re.sub('@\\S+', '  ', text)
     text = re.sub('[%s]' % re.escape("""!"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"""), ' ', text)
-    text = re.sub(r'[^\\x00-\\x7f]',r' ', text) 
+    text = re.sub(r'[^\x00-\x7f]',r' ', text) 
     text = re.sub('\\s+', ' ', text)
     return text.lower()
 
@@ -52,9 +57,10 @@ def jaccard_similarity(text1, text2):
 # 2. THE SMART API ENDPOINT
 @app.post("/predict")
 async def predict_resume(
+    role: str = Form(...),
     resume: UploadFile = File(...), 
     jd: UploadFile = File(...),
-    transcript: Optional[UploadFile] = File(None) # <-- THIS IS OPTIONAL NOW
+    transcript: Optional[UploadFile] = File(None) 
 ):
     
     resume_text = clean_text(extract_text_from_pdf(await resume.read()))
@@ -64,9 +70,10 @@ async def predict_resume(
     jd_len = len(jd_text.split())
     length_diff = abs(resume_len - jd_len)
     
-    res_words = set(resume_text.split())
-    jd_words = set(jd_text.split())
-    overlap_res_jd = len(res_words.intersection(jd_words)) / len(jd_words) if len(jd_words) > 0 else 0
+    res_words = {w for w in resume_text.split() if w not in stop_words}
+    jd_words = {w for w in jd_text.split() if w not in stop_words}
+    jd_word_list = jd_text.split()
+    overlap_res_jd = len(res_words.intersection(jd_words)) / len(jd_word_list) if len(jd_word_list) > 0 else 0
     jac_res_jd = jaccard_similarity(resume_text, jd_text)
     if transcript is not None:
         trans_text = clean_text(extract_text_from_pdf(await transcript.read()))
@@ -84,8 +91,8 @@ async def predict_resume(
         jac_res_trans = jaccard_similarity(resume_text, trans_text)
         jac_jd_trans = jaccard_similarity(jd_text, trans_text)
         
-        trans_words = set(trans_text.split())
-        overlap_trans_jd = len(trans_words.intersection(jd_words)) / len(jd_words) if len(jd_words) > 0 else 0
+        trans_words = {w for w in trans_text.split() if w not in stop_words}
+        overlap_trans_jd = len(trans_words.intersection(jd_words)) / len(jd_word_list) if len(jd_word_list) > 0 else 0
         
         # Dynamically create DataFrame with all expected columns set to 0.0 (float)
         expected_cols = scaler_trans.feature_names_in_
@@ -103,12 +110,25 @@ async def predict_resume(
         features.at[0, 'jaccard_resume_jd'] = jac_res_jd
         features.at[0, 'jaccard_resume_transcript'] = jac_res_trans
         features.at[0, 'jaccard_jd_transcript'] = jac_jd_trans
+
+        #Used to replicate the process of creating dummy variables for the role that was done during model training
+        mapped_role = role
+        if mapped_role == "Backend Engineer":
+            mapped_role = "Software Engineer"
+            
+        if mapped_role in expected_cols:
+            features.at[0, mapped_role] = 1.0
         
         scaled_features = scaler_trans.transform(features)
         prediction = model_trans.predict(scaled_features)[0]
+        prediction_prob = model_trans.predict_proba(scaled_features)[0]
+        confidence = max(prediction_prob) * 100
+        
         model_used = "Transcript Model"
+        print(f"\n[INFO] Used: {model_used}")
+        print(f"[INFO] Prediction: {'Select' if prediction == 1 else 'Reject'} (Confidence: {confidence:.2f}%)\n")
     else:
-        vectorizer_no_trans = joblib.load(r"P:\AI-Resume-Screener\models\tfidf_vectorizer.pkl")
+        
         
         res_vec = vectorizer_no_trans.transform([resume_text])
         jd_vec = vectorizer_no_trans.transform([jd_text])
@@ -125,9 +145,21 @@ async def predict_resume(
         features.at[0, 'jd_resume_similarity'] = cos_jd_res
         features.at[0, 'jaccard_resume_jd'] = jac_res_jd
         
+        mapped_role = role
+        if mapped_role == "Backend Engineer":
+            mapped_role = "Software Engineer"
+            
+        if mapped_role in expected_cols:
+            features.at[0, mapped_role] = 1.0
+        
         scaled_features = scaler_no_trans.transform(features)
         prediction = model_no_trans.predict(scaled_features)[0]
+        prediction_prob = model_no_trans.predict_proba(scaled_features)[0]
+        confidence = max(prediction_prob) * 100
+        
         model_used = "No Transcript Model"
+        print(f"\n[INFO] Used: {model_used}")
+        print(f"[INFO] Prediction: {'Select' if prediction == 1 else 'Reject'} (Confidence: {confidence:.2f}%)\n")
         
     decision = "select" if prediction == 1 else "reject"
     

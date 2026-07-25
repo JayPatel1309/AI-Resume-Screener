@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Resume Screener</title>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,6 +17,53 @@
         </header>
 
         <form id="screener-form">
+            <div class="input-group">
+                <label for="role">Job Role</label>
+                <select id="role" name="role" required>
+                    <option value="" disabled selected>Select the role applied for...</option>
+                    <option value="AI Engineer">AI Engineer</option>
+                    <option value="AI Researcher">AI Researcher</option>
+                    <option value="AR/VR Developer">AR/VR Developer</option>
+                    <option value="Backend Engineer">Backend Engineer</option>
+                    <option value="Blockchain Developer">Blockchain Developer</option>
+                    <option value="Business Analyst">Business Analyst</option>
+                    <option value="Cloud Architect">Cloud Architect</option>
+                    <option value="Cloud Engineer">Cloud Engineer</option>
+                    <option value="Content Writer">Content Writer</option>
+                    <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+                    <option value="Cybersecurity Specialist">Cybersecurity Specialist</option>
+                    <option value="Data Analyst">Data Analyst</option>
+                    <option value="Data Architect">Data Architect</option>
+                    <option value="Data Engineer">Data Engineer</option>
+                    <option value="Data Scientist">Data Scientist</option>
+                    <option value="Database Administrator">Database Administrator</option>
+                    <option value="DevOps Engineer">DevOps Engineer</option>
+                    <option value="Digital Marketing Specialist">Digital Marketing Specialist</option>
+                    <option value="E-commerce Specialist">E-commerce Specialist</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                    <option value="Game Developer">Game Developer</option>
+                    <option value="Graphic Designer">Graphic Designer</option>
+                    <option value="HR Specialist">HR Specialist</option>
+                    <option value="Human Resources Specialist">Human Resources Specialist</option>
+                    <option value="IT Support Specialist">IT Support Specialist</option>
+                    <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                    <option value="Mobile App Developer">Mobile App Developer</option>
+                    <option value="Network Engineer">Network Engineer</option>
+                    <option value="Product Manager">Product Manager</option>
+                    <option value="Project Manager">Project Manager</option>
+                    <option value="QA Engineer">QA Engineer</option>
+                    <option value="Robotics Engineer">Robotics Engineer</option>
+                    <option value="Software Developer">Software Developer</option>
+                    <option value="Software Engineer">Software Engineer</option>
+                    <option value="System Administrator">System Administrator</option>
+                    <option value="UI Designer">UI Designer</option>
+                    <option value="UI Engineer">UI Engineer</option>
+                    <option value="UI/UX Designer">UI/UX Designer</option>
+                    <option value="UX Designer">UX Designer</option>
+                    <option value="Other">Other / Not Listed</option>
+                </select>
+            </div>
+
             <div class="input-group">
                 <label for="resume">Resume (PDF)</label>
                 <div class="file-upload-wrapper">

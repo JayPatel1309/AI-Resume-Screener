@@ -1,6 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // File input change handlers (to show the selected file name)
     const inputs = ['resume', 'jd', 'transcript'];
     
     inputs.forEach(id => {
@@ -17,8 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-    // Form submission handler
     const form = document.getElementById('screener-form');
     const submitBtn = document.getElementById('submit-btn');
     const btnText = document.querySelector('.btn-text');
@@ -31,14 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // UI Loading state
         submitBtn.disabled = true;
         btnText.classList.add('hidden');
         loader.classList.remove('hidden');
         resultContainer.classList.add('hidden');
-        
-        // Prepare FormData
         const formData = new FormData();
+        formData.append('role', document.getElementById('role').value);
         formData.append('resume', document.getElementById('resume').files[0]);
         formData.append('jd', document.getElementById('jd').files[0]);
         
@@ -48,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            // Send request to FastAPI backend
             const response = await fetch('http://localhost:8000/predict', {
                 method: 'POST',
                 body: formData
@@ -60,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             
-            // Handle result UI
             decisionText.textContent = data.decision;
             decisionText.className = ''; // Reset classes
             decisionText.classList.add(data.decision.toLowerCase());

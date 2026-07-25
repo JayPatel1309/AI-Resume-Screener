@@ -151,7 +151,7 @@ button:disabled {
 
 #decision-text.select {
     color: #000000;
-    background-color: #e0e0e0; /* Minimalist highlight instead of green */
+    background-color: #e0e0e0; 
     display: inline-block;
     padding: 0.2rem 1rem;
 }
@@ -169,7 +169,6 @@ button:disabled {
     font-size: 0.85rem;
 }
 
-/* Loader Animation */
 .loader {
     border: 3px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
@@ -191,4 +190,21 @@ button:hover .loader {
 @keyframes spin {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+select {
+    width: 100%;
+    border: 2px solid var(--border-color);
+    padding: 1rem;
+    background-color: transparent;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    outline: none;
+}
+
+select:hover {
+    background-color: var(--hover-bg);
 }
