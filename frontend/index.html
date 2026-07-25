@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Screener</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Resume Screener</h1>
+            <p>Upload a candidate's resume and the job description to get an instant ML-driven decision.</p>
+        </header>
+
+        <form id="screener-form">
+            <div class="input-group">
+                <label for="resume">Resume (PDF)</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="resume" name="resume" accept="application/pdf" required>
+                    <span class="file-name" id="resume-name">No file chosen</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="jd">Job Description (PDF)</label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="jd" name="jd" accept="application/pdf" required>
+                    <span class="file-name" id="jd-name">No file chosen</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="transcript">Interview Transcript (PDF) <span class="optional">- Optional</span></label>
+                <div class="file-upload-wrapper">
+                    <input type="file" id="transcript" name="transcript" accept="application/pdf">
+                    <span class="file-name" id="transcript-name">No file chosen</span>
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn">
+                <span class="btn-text">Screen Candidate</span>
+                <span class="loader hidden"></span>
+            </button>
+        </form>
+
+        <div id="result-container" class="hidden">
+            <h2 id="decision-text"></h2>
+            <p id="model-used-text"></p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
